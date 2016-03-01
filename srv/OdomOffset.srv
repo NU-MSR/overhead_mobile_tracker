@@ -1,0 +1,6 @@
+# Used to control the offset between the frame that the mobile robot is being
+# tracked in and the desired frame. This odom message is always added to the
+# value calculated from ar_track_alvar before publishing.
+nav_msgs/Odometry odom
+---
+bool error
