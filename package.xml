@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package>
+  <name>overhead_mobile_tracker</name>
+  <version>0.0.0</version>
+  <description>This package uses an overhead camera and simple tag tracking
+  capabilities to measure the ground truth of a mobile robot.</description>
+  <license>MIT</license>
+  <maintainer email="schultzjarvis@gmail.com">Jarvis Schultz</maintainer>
+  <author email="schultzjarvis@gmail.com">Jarvis Schultz</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+  <build_depend>ar_sys</build_depend>
+  <build_depend>ar_track_alvar</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>usb_cam</build_depend>
+  <build_depend>uvc_camera</build_depend>
+
+  <run_depend>message_runtime</run_depend>
+  <run_depend>ar_sys</run_depend>
+  <run_depend>ar_track_alvar</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>usb_cam</run_depend>
+  <run_depend>uvc_camera</run_depend>
+</package>
