@@ -1,0 +1,7 @@
+## Borrowed from ros_comm_msgs metapackage... will be eventually released:
+# https://github.com/ros/ros_comm_msgs/blob/indigo-devel/std_srvs/srv/SetBool.srv
+
+bool data # e.g. for hardware enabling / disabling
+---
+bool success   # indicate successful run of triggered service
+string message # informational, e.g. for error messages

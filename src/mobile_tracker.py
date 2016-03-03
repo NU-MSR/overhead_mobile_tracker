@@ -14,7 +14,7 @@ PUBLISHERS:
   + meas_path (nav_msgs/Path) ~ Path that the robot has traced out over time
 
 SERVICES:
-  + publish_bool (std_srvs/SetBool) ~ Control whether the pose of the robot and the path should be published or not
+  + publish_bool (overhead_mobile_tracker/SetBool) ~ Control whether the pose of the robot and the path should be published or not
   + set_offset (overhead_mobile_tracker/OdomOffset) ~ Set an offset that is always added to tracker value before publishing
   + set_height (overhead_mobile_tracker/SetHeightOffset) ~ Set distance driving plane is from camera (in driving plane normal direction)
 
@@ -31,9 +31,16 @@ import tf
 import tf.transformations as tr
 from nav_msgs.msg import Odometry
 from nav_msgs.msg import Path
-from overhead_mobile_tracker.srv import OdomOffset
-from overhead_mobile_tracker.srv import OdomOffsetRequest
-from overhead_mobile_tracker.srv import OdomOffsetReply
+from ar_track_alvar_msgs.msg import AlvarMarkers
+from overhead_mobile_tracker.srv import SetBool
+from overhead_mobile_tracker.srv import SetBoolRequest
+from overhead_mobile_tracker.srv import SetBoolReply
+from overhead_mobile_tracker.srv import SetOdomOffset
+from overhead_mobile_tracker.srv import SetOdomOffsetRequest
+from overhead_mobile_tracker.srv import SetOdomOffsetReply
+from overhead_mobile_tracker.srv import SetHeightOffset
+from overhead_mobile_tracker.srv import SetHeightOffsetRequest
+from overhead_mobile_tracker.srv import SetHeightOffsetReply
 
 # NON-ROS IMPORTS
 import numpy as np
@@ -64,8 +71,15 @@ class MobileTracker( object ):
         self.listener = tf.TransformListener()
         self.meas_pub = rospy.Publisher("meas_pose", Odometry, queue_size=5)
         self.path_pub = rospy.Publisher("meas_path", Path, queue_size=1)
+        self.alvar_sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, self.alvarcb)
+        self.publish_serv = rospy.ServiceProxy("publish_bool", SetBool, self.pub_bool_srv_cb)
+        self.height_serv = rospy.ServiceProxy("set_height", SetHeightOffset, self.height_srv_cb)
+        self.offset_serv = rospy.ServiceProxy("set_offset", SetOdomOffset, self.height_srv_cb)
+        return
+
+    def alvarcb(self, markers):
         
-        
+        return
 
 
 
