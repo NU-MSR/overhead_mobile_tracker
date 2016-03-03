@@ -2,4 +2,4 @@
 # the direction normal to the driving surface.
 float32 dist
 ---
-bool error
+bool success

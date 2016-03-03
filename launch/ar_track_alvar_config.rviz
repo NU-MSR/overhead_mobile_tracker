@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Marker1
-        - /TF1
         - /TF1/Frames1
         - /Camera1
       Splitter Ratio: 0.5
@@ -93,10 +92,20 @@ Visualization Manager:
       Update Topic: /basic_controls/update
       Value: false
     - Class: rviz/TF
-      Enabled: false
-      Frame Timeout: 15
+      Enabled: true
+      Frame Timeout: 2
       Frames:
         All Enabled: false
+        ar_marker_0:
+          Value: true
+        ar_marker_12:
+          Value: true
+        ar_marker_253:
+          Value: true
+        odom_meas:
+          Value: true
+        overhead_cam_frame:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: false
@@ -105,7 +114,7 @@ Visualization Manager:
       Tree:
         {}
       Update Interval: 0
-      Value: false
+      Value: true
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 255; 25; 0
@@ -241,22 +250,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.62479
+      Distance: 2.20433
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.253347
-        Y: 0.0294252
-        Z: -0.126204
+        X: 0.114987
+        Y: 0.198789
+        Z: 1.8542
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: -1.4348
+      Pitch: -0.134797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.95132
+      Yaw: 1.63815
     Saved: ~
 Window Geometry:
   Camera:

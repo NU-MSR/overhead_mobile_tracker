@@ -21,9 +21,11 @@ SERVICES:
 PARAMETERS:
   + frame_id (string) ~ What frame should measured odometry be reported in (default: "/odom_meas")
   + camera_frame_id (string) ~ What frame is at the camera lens? (default: "/overhead_cam_frame")
+  + base_frame_id (string) ~ Frame attached to the mobile robot (default: "/base_meas")
   + x0,y0,th0 (float) ~ These are used to define the odometry offset (default: all zero)
   + height (float) ~ Distance from camera to tag in z-direction (default: 2.5)
   + pubstate (bool) ~ Should publishing be enabled by default
+  + marker_id (int) ~ Which marker should we be tracking (default: 12)
 """
 # ROS IMPORTS
 import rospy
@@ -60,11 +62,17 @@ class MobileTracker( object ):
         # first let's load all parameters:
         self.frame_id = rospy.get_param("~frame_id", "odom_meas")
         self.camera_frame_id = rospy.get_param("~camera_frame_id", "overhead_cam_frame")
+        self.base_frame_id = rospy.get_param("~base_frame_id", "base_meas")
         self.x0 = rospy.get_param("~x0", 0.0)
         self.y0 = rospy.get_param("~y0", 0.0)
         self.th0 = rospy.get_param("~th0", 0.0)
         self.height = rospy.get_param("~height", 2.5)
         self.pubstate = rospy.get_param("~pubstate", True)
+        self.marker_id = rospy.get_param("~marker_id", 12)
+
+        # setup other required vars:
+        self.odom_offset = odom_conversions.numpy_to_odom(np.array([self.x0, self.y0, self.th0]),
+                                                          self.frame_id)
 
         # now let's create publishers, listeners, and subscribers
         self.br = tf.TransformBroadcaster()
@@ -74,14 +82,57 @@ class MobileTracker( object ):
         self.alvar_sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, self.alvarcb)
         self.publish_serv = rospy.ServiceProxy("publish_bool", SetBool, self.pub_bool_srv_cb)
         self.height_serv = rospy.ServiceProxy("set_height", SetHeightOffset, self.height_srv_cb)
-        self.offset_serv = rospy.ServiceProxy("set_offset", SetOdomOffset, self.height_srv_cb)
+        self.offset_serv = rospy.ServiceProxy("set_offset", SetOdomOffset, self.offset_srv_cb)
         return
 
     def alvarcb(self, markers):
-        
+        rospy.logdebug("Detected markers!")
+        # can we find the correct marker?
+        for m in markers.markers:
+            if m.id == self.marker_id:
+                odom_meas = Odometry()
+                odom_meas.header = m.pose.header
+                odom.child_frame_id = self.base_frame_id
+                odom.header.frame_id = self.frame_id
+                # now we need to transform this pose measurement from the camera
+                # frame into the frame that we are reporting measure odometry in
+                pose_transformed = self.transform_pose(m.pose.pose)
+                odom.pose.pose = pose_transformed
+                # Now let's add our offsets:
+                odom = odom_conversions(odom, self.offset)
+                self.meas_pub.publish(odom)
         return
 
 
+    def transform_pose(pose):
+        """
+        This function will send the transform from the camera frame
+        (self.camera_frame_id) to the measurement odometry frame
+        (self.frame_id). It will then use this transform to convert the pose arg
+        from the camera frame to the odom frame. We will assume that the odom
+        measurement frame is a distance of self.height from the camera frame,
+        and that the odom frame will b
+        """
+
+        return
+
+
+    def pub_bool_srv_cb(self, request):
+        self.pubstate = request.data
+        reply = SetBoolReply()
+        reply.success = True
+        reply.message = "Publishing camera measurements? ... %s"%self.pubstate
+        return reply
+
+
+    def height_srv_cb(self, request):
+        self.height = request.dist
+        return SetHeightOffsetReply(True)
+
+
+    def offset_srv_cb(self, request):
+        self.odom_offset = request.odom
+        return SetOdomOffsetReply(True)
 
     
 def main():

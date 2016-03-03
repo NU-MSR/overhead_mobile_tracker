@@ -3,4 +3,4 @@
 # value calculated from ar_track_alvar before publishing.
 nav_msgs/Odometry odom
 ---
-bool error
+bool success
