@@ -150,6 +150,7 @@ class MobileTracker( object ):
 
 def main():
     rospy.init_node('mobile_robot_tracker', log_level=rospy.INFO)
+    rospy.loginfo("Starting tracking node...")
 
     try:
         tracker = MobileTracker()
