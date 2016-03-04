@@ -40,6 +40,11 @@
 		respawn="false" output="screen"
 		args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
 
+
+  <!-- start static transform broadcaster to odom_meas frame (this launch file should come from calibration) -->
+  <include file="$(find overhead_mobile_tracker)/launch/odom_frame_broadcaster.launch" />
+  
+  
   <!-- start rviz -->
   <node if="$(arg vis)" name="rviz" pkg="rviz" type="rviz"
 		args="-d $(find overhead_mobile_tracker)/launch/ar_track_alvar_config.rviz" />

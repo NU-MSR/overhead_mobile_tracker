@@ -147,21 +147,6 @@ class SystemCalibrator( object ):
         return
 
 
-
-# qarr = np.zeros((500,4))
-# rpy = [-np.pi, np.pi/4, -2*np.pi]
-# for i in range(len(qarr)):
-#     a = np.random.normal(rpy[0], 0.05)
-#     b = np.random.normal(rpy[1], 0.05)
-#     c = np.random.normal(rpy[2], 0.05)
-#     qarr[i] = tr.quaternion_from_euler(a,b,c,'sxyz')
-# Qadj = np.dot(qarr.T, qarr)
-# (eig, evec) = scipy.linalg.eigh(Qadj, eigvals=(3,3))
-# print "Norm = ",np.linalg.norm(evec)
-# print "RPY orig = ",[angle_utils.normalize_angle(x) for x in rpy]
-# print "RPY calc = ",tr.euler_from_quaternion(evec.ravel(), 'sxyz') 
-
-    
 def main():
     rospy.init_node('system_calibrator', log_level=rospy.INFO)
     rospy.loginfo("Calibration node started")
