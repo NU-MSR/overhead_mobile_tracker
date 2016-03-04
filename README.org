@@ -8,18 +8,18 @@ plane of the driving frame, and we only consider rotations about the driving
 frame's z-axis.
 
 * Launch Files
-**  =calibrate_system.launch=
-   This launch file is used for calibrating the system. Once the system is
-   calibrated, the user is given the option of writing the calibration into a
-   launch file that will setup a =static_transform_publisher= from the camera
-   frame into the driving frame. The primary node is [[file:src/system_calibrator.py][system_calibrator.py]], the
-   parameters that can be set for this node are described in detail in the
-   header of the code.
+****  =calibrate_system.launch=
+	 This launch file is used for calibrating the system. Once the system is
+	 calibrated, the user is given the option of writing the calibration into a
+	 launch file that will setup a =static_transform_publisher= from the camera
+	 frame into the driving frame. The primary node is [[file:src/system_calibrator.py][system_calibrator.py]], the
+	 parameters that can be set for this node are described in detail in the
+	 header of the code.
 
-** =run_system_ar_track_alvar.launch=
-   This launch file is the primary launch file for running the system after
-   calibration. The primary node is [[file:src/mobile_tracker.py][mobile_tracker.py]]. Its relevant topics,
-   parameters, and services are described at the top of the source code.
+**** =run_system_ar_track_alvar.launch=
+	 This launch file is the primary launch file for running the system after
+	 calibration. The primary node is [[file:src/mobile_tracker.py][mobile_tracker.py]]. Its relevant topics,
+	 parameters, and services are described at the top of the source code.
 
 
 * Miscellaneous Notes and Debugging
@@ -43,9 +43,9 @@ frame's z-axis.
    different resolution if you need.
 
 ** Tag Numbers
-   The default tag id is 12. I've included a copy of this tag as
-   [[file:data/MarkerData_12.png][data/MarkerData_12.png]], and I have a printed version pasted onto a flat piece
-   of particle board in D110. Feel free to re-print this tag, or print a
-   different tag. Just be sure to update the tag size and the tag id in the
-   launch files (or with command line args).
+   The default tag id is 12. I've included a copy of this tag below, and I have
+   a printed version pasted onto a flat piece of particle board in D110. Feel
+   free to re-print this tag, or print a different tag. Just be sure to update
+   the tag size and the tag id in the launch files (or with command line args).
+   [[file:data/MarkerData_12.png][data/MarkerData_12.png]]
   
