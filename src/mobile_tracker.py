@@ -16,14 +16,12 @@ PUBLISHERS:
 SERVICES:
   + publish_bool (overhead_mobile_tracker/SetBool) ~ Control whether the pose of the robot and the path should be published or not
   + set_offset (overhead_mobile_tracker/OdomOffset) ~ Set an offset that is always added to tracker value before publishing
-  + set_height (overhead_mobile_tracker/SetHeightOffset) ~ Set distance driving plane is from odom_meas plane (in driving plane normal direction)
 
 PARAMETERS:
   + frame_id (string) ~ What frame should measured odometry be reported in (default: "/odom_meas")
   + camera_frame_id (string) ~ What frame is at the camera lens? (default: "/overhead_cam_frame")
   + base_frame_id (string) ~ Frame attached to the mobile robot (default: "/base_meas")
   + x0,y0,th0 (float) ~ These are used to define the odometry offset (default: all zero)
-  + height (float) ~ Distance from camera to tag in z-direction (default: 2.5)
   + pubstate (bool) ~ Should publishing be enabled by default
   + marker_id (int) ~ Which marker should we be tracking (default: 12)
 """
@@ -40,9 +38,7 @@ from overhead_mobile_tracker.srv import SetBoolResponse
 from overhead_mobile_tracker.srv import SetOdomOffset
 from overhead_mobile_tracker.srv import SetOdomOffsetRequest
 from overhead_mobile_tracker.srv import SetOdomOffsetResponse
-from overhead_mobile_tracker.srv import SetHeightOffset
-from overhead_mobile_tracker.srv import SetHeightOffsetRequest
-from overhead_mobile_tracker.srv import SetHeightOffsetResponse
+
 
 # NON-ROS IMPORTS
 import numpy as np
@@ -66,7 +62,6 @@ class MobileTracker( object ):
         self.x0 = rospy.get_param("~x0", 0.0)
         self.y0 = rospy.get_param("~y0", 0.0)
         self.th0 = rospy.get_param("~th0", 0.0)
-        self.height = rospy.get_param("~height", 2.5)
         self.pubstate = rospy.get_param("~pubstate", True)
         self.marker_id = rospy.get_param("~marker_id", 12)
 
@@ -82,7 +77,6 @@ class MobileTracker( object ):
         self.path_pub = rospy.Publisher("meas_path", Path, queue_size=1)
         self.alvar_sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, self.alvarcb)
         self.publish_serv = rospy.ServiceProxy("publish_bool", SetBool, self.pub_bool_srv_cb)
-        self.height_serv = rospy.ServiceProxy("set_height", SetHeightOffset, self.height_srv_cb)
         self.offset_serv = rospy.ServiceProxy("set_offset", SetOdomOffset, self.offset_srv_cb)
         return
 
@@ -93,15 +87,15 @@ class MobileTracker( object ):
         for m in markers.markers:
             if m.id == self.marker_id:
                 odom_meas = Odometry()
-                odom_meas.header = m.pose.header
-                odom_meas.child_frame_id = self.base_frame_id
                 odom_meas.header.frame_id = self.frame_id
-                odom_meas.header.stamp = markers.header.stamp
+                m.pose.header.frame_id = self.camera_frame_id
+                odom_meas.child_frame_id = self.base_frame_id
+                odom_meas.header.stamp = m.header.stamp
+                m.pose.header.stamp = m.header.stamp
                 # now we need to transform this pose measurement from the camera
                 # frame into the frame that we are reporting measure odometry in
                 pose_transformed = self.transform_pose(m.pose)
                 if pose_transformed is not None:
-                    print pose_transformed
                     odom_meas.pose.pose = pose_transformed.pose
                     # Now let's add our offsets:
                     odom_meas = odom_conversions.odom_add_offset(odom_meas, self.odom_offset)
@@ -109,6 +103,7 @@ class MobileTracker( object ):
                     self.send_transforms(odom_meas)
                     self.publish_path(m.pose)
         return
+
 
     def publish_path(self, ps):
         path = Path()
@@ -119,10 +114,10 @@ class MobileTracker( object ):
         self.path_pub.publish(path)
         return
 
+
     def transform_pose(self, pose):
         try:
-            (trans,rot) = self.listener.lookupTransform(self.)
-            # new_pose = self.listener.transformPose(self.frame_id, pose)
+            new_pose = self.listener.transformPose(self.frame_id, pose)
             # now new_pose should be the pose of the tag in the odom_meas frame.
             # Let's ignore the height, and rotations not about the z-axis
             new_pose.pose.position.z = 0
@@ -136,7 +131,7 @@ class MobileTracker( object ):
             (odom.pose.pose.position.x, odom.pose.pose.position.y, odom.pose.pose.position.z),
             (odom.pose.pose.orientation.x, odom.pose.pose.orientation.y,
              odom.pose.pose.orientation.z, odom.pose.pose.orientation.w),
-            odom.header.stamp,
+            rospy.Time.now(),
             self.base_frame_id,
             self.frame_id)
         return
@@ -148,17 +143,11 @@ class MobileTracker( object ):
         reply.message = "Publishing camera measurements? ... %s"%self.pubstate
         return reply
 
-
-    def height_srv_cb(self, request):
-        self.height = request.dist
-        return SetHeightOffsetResponse(True)
-
-
     def offset_srv_cb(self, request):
         self.odom_offset = request.odom
         return SetOdomOffsetResponse(True)
 
-    
+
 def main():
     rospy.init_node('mobile_robot_tracker', log_level=rospy.INFO)
 

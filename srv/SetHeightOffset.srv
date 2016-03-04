@@ -1,5 +1,0 @@
-# Used to control how far away the camera thinks it is from the mobile robot in
-# the direction normal to the driving surface.
-float32 dist
----
-bool success
