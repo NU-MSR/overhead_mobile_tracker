@@ -1,0 +1,51 @@
+* Intro 
+This is a simple package for tracking a mobile robot using an overhead camera.
+The user places a tag on the robot, and the [[http://wiki.ros.org/ar_track_alvar][ar_track_alvar]] package estimates the
+transform from the camera to the tag. After a calibration procedure, we are able
+to transform the pose of the tag in the camera frame into a "driving frame"
+(default name is =odom_meas=). The tag's pose is projected down into the /x-y/
+plane of the driving frame, and we only consider rotations about the driving
+frame's z-axis.
+
+* Launch Files
+**  =calibrate_system.launch=
+   This launch file is used for calibrating the system. Once the system is
+   calibrated, the user is given the option of writing the calibration into a
+   launch file that will setup a =static_transform_publisher= from the camera
+   frame into the driving frame. The primary node is [[file:src/system_calibrator.py][system_calibrator.py]], the
+   parameters that can be set for this node are described in detail in the
+   header of the code.
+
+** =run_system_ar_track_alvar.launch=
+   This launch file is the primary launch file for running the system after
+   calibration. The primary node is [[file:src/mobile_tracker.py][mobile_tracker.py]]. Its relevant topics,
+   parameters, and services are described at the top of the source code.
+
+
+* Miscellaneous Notes and Debugging
+** Camera Drivers
+   I have occasionally had issues with [[http://wiki.ros.org/uvc_camera][uvc_camera]], [[http://wiki.ros.org/usb_cam][usb_cam]], and [[http://wiki.ros.org/libuvc_camera][libuvc_camera]]
+   when trying to start the Microsoft LifeCam that is attached to the ceiling in
+   D110. Right now the default is to use =usb_cam=. If you're experiencing
+   issues, you could try one of the other camera drivers. If the camera is
+   having trouble starting even with tools such as =cheese= or =guvcview=,
+   you're likely experiencing some sort of issue with the uvc camera module.
+   I've had luck with the following steps:
+   1. Unplug camera
+   2. Remove the camera kernel module: =sudo rmmod uvcvideo=
+   3. Re-insert the camera module: =sudo modprobe uvcvideo=
+   4. Reload the usb hotplugging daemon service: =sudo service udev reload=
+   5. Re-plug in the camera
+
+** Camera Calibration
+   I've provided a [[file:launch/overhead_tracker_camera.yaml][camera calibration file]] for the camera mounted on the ceiling
+   in D110 at 1280x720 resolution. Feel free to calibrate the camera at a
+   different resolution if you need.
+
+** Tag Numbers
+   The default tag id is 12. I've included a copy of this tag as
+   [[file:data/MarkerData_12.png][data/MarkerData_12.png]], and I have a printed version pasted onto a flat piece
+   of particle board in D110. Feel free to re-print this tag, or print a
+   different tag. Just be sure to update the tag size and the tag id in the
+   launch files (or with command line args).
+  
