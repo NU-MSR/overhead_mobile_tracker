@@ -1,1 +1,2 @@
 launch/odom_frame_broadcaster.launch
+*.bag
