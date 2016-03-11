@@ -16,7 +16,7 @@
   <arg name="max_new_marker_error" default="0.08" />
   <arg name="max_track_error" default="0.2" />
   <arg name="cam_image_topic" default="$(arg video_namespace)/$(arg video_image_topic)" />
-  <arg name="cam_info_topic" default="$(arg video_namespace)/$(arg video_info_topic)" />	
+  <arg name="cam_info_topic" default="$(arg video_namespace)/$(arg video_info_topic)" />
   <arg name="output_frame" default="$(arg camera_frame_id)" />
 
   <!-- generic options -->
@@ -24,40 +24,40 @@
   <arg name="frame_id" default="odom_meas" /> <!-- frame that we want to report robot pose in -->
   <arg name="count" default="50" /> <!-- how many samples for calibration -->
   <arg name="marker_id" default="12" /> <!-- marker id -->
-  
+
   <!-- start camera drivers -->
   <group ns="$(arg video_namespace)">
-  	<node pkg="image_proc" type="image_proc" name="image_proc" />
+    <node pkg="image_proc" type="image_proc" name="image_proc" />
   </group>
   <node pkg="usb_cam" type="usb_cam_node" name="$(arg video_namespace)" output="screen" >
     <param name="video_device" type="string" value="$(arg camera_device)"/>
-  	<param name="pixel_format" type="string" value="mjpeg" />
-  	<param name="image_width" type="int" value="$(arg camera_width)" />
-  	<param name="image_height" type="int" value="$(arg camera_height)" />
+    <param name="pixel_format" type="string" value="mjpeg" />
+    <param name="image_width" type="int" value="$(arg camera_width)" />
+    <param name="image_height" type="int" value="$(arg camera_height)" />
     <param name="camera_name" type="string" value="camera"/>
-  	<param name="camera_frame_id" type="string" value="overhead_cam_frame"/>
-	<param name="camera_info_url" value="file://$(find overhead_mobile_tracker)/launch/overhead_tracker_camera.yaml" />
+    <param name="camera_frame_id" type="string" value="overhead_cam_frame"/>
+    <param name="camera_info_url" value="file://$(find overhead_mobile_tracker)/launch/overhead_tracker_camera.yaml" />
   </node>
 
 
   <!-- start ar_track_alvar node -->
   <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect"
-		respawn="false" output="screen"
-		args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+        respawn="false" output="screen"
+        args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
 
 
   <!-- start calibration node -->
   <node name="system_calibrator" pkg="overhead_mobile_tracker" type="system_calibrator.py"
-		output="screen" launch-prefix="xterm -e" respawn="true">
-	<param name="frame_id" value="$(arg frame_id)" />
-	<param name="marker_id" value="$(arg marker_id)" />
-	<param name="camera_frame_id" value="$(arg camera_frame_id)" />
+        output="screen" launch-prefix="xterm -e" respawn="true">
+    <param name="frame_id" value="$(arg frame_id)" />
+    <param name="marker_id" value="$(arg marker_id)" />
+    <param name="camera_frame_id" value="$(arg camera_frame_id)" />
   </node>
-  
-  
+
+
 
   <!-- start rviz -->
   <node if="$(arg vis)" name="rviz" pkg="rviz" type="rviz"
-		args="-d $(find overhead_mobile_tracker)/launch/calibration_config.rviz" />
-  
+        args="-d $(find overhead_mobile_tracker)/launch/calibration_config.rviz" />
+
 </launch>

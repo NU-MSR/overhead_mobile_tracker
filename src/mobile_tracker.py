@@ -76,8 +76,8 @@ class MobileTracker( object ):
         self.meas_pub = rospy.Publisher("meas_pose", Odometry, queue_size=5)
         self.path_pub = rospy.Publisher("meas_path", Path, queue_size=1)
         self.alvar_sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, self.alvarcb)
-        self.publish_serv = rospy.ServiceProxy("publish_bool", SetBool, self.pub_bool_srv_cb)
-        self.offset_serv = rospy.ServiceProxy("set_offset", SetOdomOffset, self.offset_srv_cb)
+        self.publish_serv = rospy.Service("publish_bool", SetBool, self.pub_bool_srv_cb)
+        self.offset_serv = rospy.Service("set_offset", SetOdomOffset, self.offset_srv_cb)
         return
 
 
