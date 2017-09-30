@@ -7,7 +7,7 @@ This is a simple node that uses ar_track_alvar to track the pose of a mobile
 robot using an overhead camera system.
 
 SUBSCRIPTIONS:
-  + ar_pose_marker (ar_track_alvar_msgs/AlvarMarkers) ~ pose of all markers detected by ar_track_alvar
+  + tracker_pose (geometry_msgs/PoseStamped) ~ Pose of the tracker in the lighthouse frame
 
 PUBLISHERS:
   + meas_pose (nav_msgs/Odometry) ~ measured pose of the mobile robot
@@ -23,7 +23,6 @@ PARAMETERS:
   + base_frame_id (string) ~ Frame attached to the mobile robot (default: "/base_meas")
   + x0,y0,th0 (float) ~ These are used to define the odometry offset (default: all zero)
   + pubstate (bool) ~ Should publishing be enabled by default
-  + marker_id (int) ~ Which marker should we be tracking (default: 12)
 """
 # ROS IMPORTS
 import rospy
@@ -31,7 +30,7 @@ import tf
 import tf.transformations as tr
 from nav_msgs.msg import Odometry
 from nav_msgs.msg import Path
-from ar_track_alvar_msgs.msg import AlvarMarkers
+from geometry_msgs.msg import PoseStamped
 from overhead_mobile_tracker.srv import SetBool
 from overhead_mobile_tracker.srv import SetBoolRequest
 from overhead_mobile_tracker.srv import SetBoolResponse
@@ -50,7 +49,7 @@ import angle_utils
 import odom_conversions
 
 # GLOBAL CONSTANTS
-PATH_LEN = 30 # number of elements in published path
+PATH_LEN = 200 # number of elements in published path
 
 
 class MobileTracker( object ):
@@ -63,7 +62,6 @@ class MobileTracker( object ):
         self.y0 = rospy.get_param("~y0", 0.0)
         self.th0 = rospy.get_param("~th0", 0.0)
         self.pubstate = rospy.get_param("~pubstate", True)
-        self.marker_id = rospy.get_param("~marker_id", 12)
 
         # setup other required vars:
         self.odom_offset = odom_conversions.numpy_to_odom(np.array([self.x0, self.y0, self.th0]),
@@ -75,33 +73,28 @@ class MobileTracker( object ):
         self.listener = tf.TransformListener()
         self.meas_pub = rospy.Publisher("meas_pose", Odometry, queue_size=5)
         self.path_pub = rospy.Publisher("meas_path", Path, queue_size=1)
-        self.alvar_sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, self.alvarcb)
+        self.pose_sub = rospy.Subscriber("tracker_pose", PoseStamped, self.posecb)
         self.publish_serv = rospy.Service("publish_bool", SetBool, self.pub_bool_srv_cb)
         self.offset_serv = rospy.Service("set_offset", SetOdomOffset, self.offset_srv_cb)
         return
 
 
-    def alvarcb(self, markers):
-        rospy.logdebug("Detected markers!")
-        # can we find the correct marker?
-        for m in markers.markers:
-            if m.id == self.marker_id:
-                odom_meas = Odometry()
-                odom_meas.header.frame_id = self.frame_id
-                m.pose.header.frame_id = self.camera_frame_id
-                odom_meas.child_frame_id = self.base_frame_id
-                odom_meas.header.stamp = m.header.stamp
-                m.pose.header.stamp = m.header.stamp
-                # now we need to transform this pose measurement from the camera
-                # frame into the frame that we are reporting measure odometry in
-                pose_transformed = self.transform_pose(m.pose)
-                if pose_transformed is not None:
-                    odom_meas.pose.pose = pose_transformed.pose
-                    # Now let's add our offsets:
-                    odom_meas = odom_conversions.odom_add_offset(odom_meas, self.odom_offset)
-                    self.meas_pub.publish(odom_meas)
-                    self.send_transforms(odom_meas)
-                    self.publish_path(m.pose)
+    def posecb(self, m):
+        rospy.logdebug("Received pose!")
+        odom_meas = Odometry()
+        odom_meas.header.frame_id = self.frame_id
+        odom_meas.child_frame_id = self.base_frame_id
+        odom_meas.header.stamp = m.header.stamp
+        # now we need to transform this pose measurement from the camera
+        # frame into the frame that we are reporting measure odometry in
+        pose_transformed = self.transform_pose(m)
+        if pose_transformed is not None:
+            odom_meas.pose.pose = pose_transformed.pose
+            # Now let's add our offsets:
+            odom_meas = odom_conversions.odom_add_offset(odom_meas, self.odom_offset)
+            self.meas_pub.publish(odom_meas)
+            self.send_transforms(odom_meas)
+            self.publish_path(m)
         return
 
 

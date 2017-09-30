@@ -53,8 +53,7 @@ class SystemCalibrator( object ):
         self.br = tf.TransformBroadcaster()
         self.kb_timer = rospy.Timer(rospy.Duration(0.1), self.keycb)
         rospy.on_shutdown(self.kb.set_normal_term)
-        # self.alvar_sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, self.alvarcb)
-        self.pose_sub = rospy.Subscriber("tracker_pose", PoseStamped, self.alvarcb)
+        self.pose_sub = rospy.Subscriber("tracker_pose", PoseStamped, self.posecb)
         
         return
 
@@ -119,10 +118,10 @@ class SystemCalibrator( object ):
         return
 
 
-    def alvarcb(self, markers):
+    def posecb(self, pose):
         if not self.calibrate_flag:
             return
-        p = markers.pose
+        p = pose.pose
         self.trans_arr[self.calibrate_count,:] = np.array([p.position.x, p.position.y, p.position.z])
         self.quat_arr[self.calibrate_count,:] = np.array([p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w])
         self.calibrate_count += 1
