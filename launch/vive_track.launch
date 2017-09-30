@@ -1,0 +1,37 @@
+<launch>
+
+  <!-- generic and tracker options -->
+  <arg name="vis" default="true" />
+  <arg name="frame_id" default="odom_meas" />
+  <arg name="base_frame_id" default="base_meas" />
+  <arg name="x0" default="0.0" />
+  <arg name="y0" default="0.0" />
+  <arg name="th0" default="0.0" />
+  <arg name="pubstate" default="true" />
+  <arg name="camera_enable" default="true"/>
+  <arg name="camera_frame_id" default="lighthouse"/>
+  
+  <!-- start vive node -->
+  <node if="$(arg camera_enable)" name="vive_driver" pkg="vive_tracker_loc"
+	type="vive_pose_node" output="screen"/>
+
+  <!-- start static transform broadcaster to odom_meas frame (this launch file should come from calibration) -->
+  <include file="$(find overhead_mobile_tracker)/launch/odom_frame_broadcaster.launch" />
+
+  <!-- start mobile tracker -->
+  <node name="mobile_tracker" pkg="overhead_mobile_tracker" type="mobile_tracker.py"
+        output="screen" >
+    <param name="~frame_id" type="string" value="$(arg frame_id)" />
+    <param name="~camera_frame_id" type="string" value="$(arg camera_frame_id)" />
+    <param name="~base_frame_id" type="string" value="$(arg base_frame_id)" />
+    <param name="~x0" type="double" value="$(arg x0)" />
+    <param name="~y0" type="double" value="$(arg y0)" />
+    <param name="~th0" type="double" value="$(arg th0)" />
+    <param name="~pubstate" type="bool" value="$(arg pubstate)" />
+  </node>
+
+  <!-- start rviz -->
+  <node if="$(arg vis)" name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find overhead_mobile_tracker)/launch/vive_track_config.rviz" />
+
+</launch>

@@ -37,7 +37,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: false
+      Enabled: true
       Line Style:
         Line Width: 0.03
         Value: Lines
@@ -50,12 +50,12 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: odom_meas
-      Value: false
+      Value: true
     - Alpha: 0.5
       Cell Size: 1
       Class: rviz/Grid
       Color: 255; 85; 255
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.03
         Value: Lines
@@ -68,13 +68,15 @@ Visualization Manager:
       Plane: YZ
       Plane Cell Count: 10
       Reference Frame: lighthouse
-      Value: true
+      Value: false
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: false
         lighthouse:
+          Value: true
+        odom_meas:
           Value: true
         tracker:
           Value: true
@@ -85,6 +87,8 @@ Visualization Manager:
       Show Names: false
       Tree:
         lighthouse:
+          odom_meas:
+            {}
           tracker:
             {}
       Update Interval: 0
@@ -120,6 +124,29 @@ Visualization Manager:
       Topic: /tracker_pose
       Unreliable: false
       Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Head Diameter: 0.3
+      Head Length: 0.2
+      Length: 0.3
+      Line Style: Lines
+      Line Width: 0.03
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.03
+      Shaft Diameter: 0.1
+      Shaft Length: 0.1
+      Topic: /meas_path
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -144,22 +171,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 11.9759
+      Distance: 7.92789
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.268132
-        Y: 0.0184415
-        Z: 0.192322
+        X: -0.500229
+        Y: 0.461217
+        Z: -1.91655
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: -1.0548
+      Pitch: -0.0747975
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.20867
+      Yaw: 6.17367
     Saved: ~
 Window Geometry:
   Camera:

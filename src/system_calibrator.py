@@ -18,8 +18,7 @@ import rospkg
 import tf
 import tf.transformations as tr
 from nav_msgs.msg import Odometry
-from nav_msgs.msg import Path
-from ar_track_alvar_msgs.msg import AlvarMarkers
+from geometry_msgs.msg import PoseStamped
 
 
 import numpy as np
@@ -36,10 +35,9 @@ FNAME = "odom_frame_broadcaster.launch"
 
 class SystemCalibrator( object ):
     def __init__(self):
-        self.marker_id = rospy.get_param("~marker_id", 12)
         self.frame_id = rospy.get_param("~frame_id", "odom_meas")
-        self.camera_frame_id = rospy.get_param("~camera_frame_id", "overhead_cam_frame")
-        self.count = rospy.get_param("~count", 50)
+        self.camera_frame_id = rospy.get_param("~camera_frame_id", "tracker")
+        self.count = rospy.get_param("~count", 300)
 
         # local vars:
         self.calibrate_flag = False
@@ -55,7 +53,9 @@ class SystemCalibrator( object ):
         self.br = tf.TransformBroadcaster()
         self.kb_timer = rospy.Timer(rospy.Duration(0.1), self.keycb)
         rospy.on_shutdown(self.kb.set_normal_term)
-        self.alvar_sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, self.alvarcb)
+        # self.alvar_sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, self.alvarcb)
+        self.pose_sub = rospy.Subscriber("tracker_pose", PoseStamped, self.alvarcb)
+        
         return
 
     
@@ -122,21 +122,18 @@ class SystemCalibrator( object ):
     def alvarcb(self, markers):
         if not self.calibrate_flag:
             return
-        for m in markers.markers:
-            if m.id == self.marker_id:
-                # then we found the right marker:
-                p = m.pose.pose
-                self.trans_arr[self.calibrate_count,:] = np.array([p.position.x, p.position.y, p.position.z])
-                self.quat_arr[self.calibrate_count,:] = np.array([p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w])
-                self.calibrate_count += 1
-                if self.calibrate_count%10 == 0:
-                    rospy.loginfo("calibrating...")
-                if self.calibrate_count >= self.count-1:
-                    rospy.loginfo("Calibration Complete!")
-                    # we are done with calibration!
-                    self.calculate_averages()
-                    self.calibrated = True
-                    self.calibrate_flag = False
+        p = markers.pose
+        self.trans_arr[self.calibrate_count,:] = np.array([p.position.x, p.position.y, p.position.z])
+        self.quat_arr[self.calibrate_count,:] = np.array([p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w])
+        self.calibrate_count += 1
+        if self.calibrate_count%10 == 0:
+            rospy.loginfo("calibrating...")
+        if self.calibrate_count >= self.count-1:
+            rospy.loginfo("Calibration Complete!")
+            # we are done with calibration!
+            self.calculate_averages()
+            self.calibrated = True
+            self.calibrate_flag = False
         return
 
     def calculate_averages(self):
