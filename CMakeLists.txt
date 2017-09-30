@@ -5,16 +5,13 @@ project(overhead_mobile_tracker)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  ar_sys
-  ar_track_alvar
   geometry_msgs
   message_generation
   nav_msgs
   roscpp
   rospy
   tf
-  usb_cam
-  uvc_camera
+  vive_tracker_loc
 )
 
 # Generate services in the 'srv' folder
